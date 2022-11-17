@@ -29,7 +29,12 @@
     function addPost(){
         
         const {descriptionPost, titlePost, imageBackground} = toRefs(formPost.value)
-        
+
+        if(descriptionPost.value == '' || titlePost.value == '' || imageBackground.value == ''){
+            alert("Preencha todos os campos")
+            return "Preecha todos os campos"
+        }
+
         posts.value = [...posts.value, 
             {
                 descriptionPost: descriptionPost.value,
@@ -40,11 +45,9 @@
         ]
 
         useClearFormPost()
-
     }
 
     watch(()=>posts.value, ()=>{
-        console.log('chamou')
         localStorage.setItem("posts", JSON.stringify(posts.value))
     })
 
@@ -55,7 +58,6 @@
     function filter(){
 
         filterPosts.value = posts.value.filter(item=> item.titlePost === filterInput.value)
-
         if(filterPosts.value.length > 0){
             filtered.value = true
         }else{
@@ -65,8 +67,10 @@
 
     function getPostToEdit(postID: number){
         let postEdit = posts.value.filter(item=> item.idPost == postID)
+        
         editing.value = true
         idPostEditing.value = postID
+
         formPost.value.descriptionPost = postEdit[0].descriptionPost
         formPost.value.imageBackground = postEdit[0].imageBackground
         formPost.value.titlePost = postEdit[0].titlePost
@@ -123,7 +127,7 @@
 
             <div class="col-md-4 content">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12 mb-2">
                         <div class="input-group">
                             <label class="input-group-text" for="">Title</label>
                             <input v-model="formPost.titlePost" type="text" class="form-control" />

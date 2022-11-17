@@ -9,6 +9,7 @@
     })
 
     const {descriptionPost, idPost, titlePost, imageBackground} = toRefs(props)
+    
     const emit = defineEmits([
         "deletePost",
         "edit"
