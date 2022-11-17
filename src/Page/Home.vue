@@ -1,84 +1,115 @@
 <script lang="ts" setup>
     
-    import { onMounted, reactive, ref } from "vue"
-   
-    import Tab from "../components/Tab.vue"
+    import {onMounted, ref, watch, toRefs} from "vue"
     import Card from "../components/Card.vue"
 
-    const content = ref('posts')
+    let posts = ref([])
+    let filterPosts = ref([])
+    let filterInput = ref('')
+
+    let filtered = ref(false)
+    
     const formPost = ref<{
-        titlePost: string,
-        imgBackground: string,
-        descriptionPost: string
-    }>({
+        descriptionPost: string,
+        imageBackground: string,
+        titlePost: string, 
+        idPost:number | null}>({
         descriptionPost: '',
-        imgBackground: '',
+        idPost: null,
+        imageBackground: '',
         titlePost: ''
     })
-    const posts = ref<[{
-        imageBackground: string,
-        titlePost: string,
-        descripptionPost:string,
-        idPost: number}]>()
     
-    function toggleTab(value:string){
-        content.value = value
-    }
-
     onMounted(()=>{
-        posts.value?.push(localStorage.getItem('posts') || [])
+        posts.value = JSON.parse(localStorage.getItem('posts') || '[]')
     })
 
     function addPost(){
-        localStorage.setItem("posts", [
+        const {descriptionPost, titlePost, imageBackground} = toRefs(formPost.value)
+        
+        posts.value = [...posts.value, 
             {
-                imageBackground: 'https://kaleidousercontent.com/removebg/designs/4621cf76-fb41-4177-bc33-f12a67816592/thumbnail_image/change-background-thumbnail.png',
-                titlePost: 'Exemplo de titulo',
-                descripptionPost: "Some quick example text to build on the card title and make up the bulk of the card's content.",
-                idPost: 1 
+                descriptionPost: descriptionPost.value,
+                idPost: posts.value.length + 1,
+                imageBackground: imageBackground.value,
+                titlePost: titlePost.value
             }
-        ])
+        ]
+
+    }
+
+    watch(()=>posts.value, ()=>{
+        localStorage.setItem("posts", JSON.stringify(posts.value))
+    })
+
+    function deletePost(postID:number){
+        posts.value = posts.value.filter(item=>item.idPost != postID)
+    }
+
+    function filter(){
+        filterPosts.value = posts.value.filter(item=> item.titlePost === filterInput.value)
+        if(filterPosts.value.length > 0){
+            filtered.value = true
+        }else{
+            filtered.value = false
+        }
     }
 
 </script>
 
 <template>
     <div class="container">
-        <Tab @change-content-tab="toggleTab" />
-
-        <div v-if="content === 'posts'" class="content">
-            <div class="row">
-                <div v-for="item in posts" :key="item.idPost" class="col-md-3">
-                    <Card 
-                        :descripption-post="item.descripptionPost"
-                        :image-background="item.imageBackground" 
-                        :title-post="item.titlePost"
-                        :id-post="item.idPost"
-                    />
+        <div class="row">
+            <div class="col-md-8 content">
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <div class="input-group">
+                            <input  v-model="filterInput" type="text" class="form-control" />
+                            <button @click="filter" class="btn btn-dark">Filter</button>
+                        </div>
+                    </div>
+                    <div  v-if="filtered === false" v-for="item in posts" :key="item.idPost" class="col-md-6">
+                        <Card 
+                            :descriptionPost="item.descriptionPost"
+                            :imageBackground="item.imageBackground" 
+                            :title-post="item.titlePost"
+                            :idPost="item.idPost"
+                            @delete-post="deletePost"
+                        />
+                    </div>
+                    <div v-if="filtered"  v-for="item in filterPosts" :key="item.idPost" class="col-md-6">
+                        <Card 
+                            :descriptionPost="item.descriptionPost"
+                            :imageBackground="item.imageBackground" 
+                            :title-post="item.titlePost"
+                            :idPost="item.idPost"
+                            @delete-post="deletePost"
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div v-if="content === 'post'" class="content">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <label class="input-group-text" for="">Title</label>
-                        <input v-model="formPost.titlePost" type="text" class="form-control" />
+            <div class="col-md-4 content">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <label class="input-group-text" for="">Title</label>
+                            <input v-model="formPost.titlePost" type="text" class="form-control" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <label class="input-group-text" for="">Image URL</label>
-                        <input type="text" v-model="formPost.imgBackground"  class="form-control" />
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <label class="input-group-text" for="">Image URL</label>
+                            <input type="text" v-model="formPost.imageBackground"  class="form-control" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-12 mt-4">
-                    <label for="">Description</label>
-                    <textarea v-model="formPost.descriptionPost" class="form-control" id="" cols="30" rows="10"></textarea>
-                </div>
-                <div class="col-md-12 mt-4">
-                  <button @click="addPost" class="btn btn-dark">Post</button>
+                    <div class="col-md-12 mt-4">
+                        <label for="">Description</label>
+                        <textarea v-model="formPost.descriptionPost" class="form-control" id="" cols="30" rows="10"></textarea>
+                    </div>
+                    <div class="col-md-12 mt-4">
+                        <button @click="addPost" class="btn btn-dark">Post</button>
+                    </div>
                 </div>
             </div>
         </div>

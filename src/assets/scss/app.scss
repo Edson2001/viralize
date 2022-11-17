@@ -9,27 +9,6 @@ ul{
 body{
     font-family: 'Roboto', sans-serif;
 }
-//fim do rest
-.tab{
-    display: flex;
-    align-items: center;
-    margin-top: 22px;
-    border-bottom: 1px solid #c1c1c1;
-    
-    li{
-        padding-bottom: 5px;
-        margin-right: 22px;
-        font-weight: bold;
-        &:hover{
-            cursor: pointer;
-        }
-    }
-}
 .content{
-    margin-top: 22px;
-    &:first-child{
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-    }
+    margin-top: 22px;   
 }
