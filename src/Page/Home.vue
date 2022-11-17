@@ -8,6 +8,7 @@
     let filterInput = ref('')
     let filtered = ref(false)
     let editing = ref(false)
+
     let idPostEditing = ref<number | null>(null)
     
     const formPost = ref<{
@@ -26,6 +27,7 @@
     })
 
     function addPost(){
+        
         const {descriptionPost, titlePost, imageBackground} = toRefs(formPost.value)
         
         posts.value = [...posts.value, 
@@ -37,9 +39,12 @@
             }
         ]
 
+        useClearFormPost()
+
     }
 
     watch(()=>posts.value, ()=>{
+        console.log('chamou')
         localStorage.setItem("posts", JSON.stringify(posts.value))
     })
 
@@ -59,26 +64,26 @@
     }
 
     function getPostToEdit(postID: number){
-        
         let postEdit = posts.value.filter(item=> item.idPost == postID)
-        
         editing.value = true
         idPostEditing.value = postID
         formPost.value.descriptionPost = postEdit[0].descriptionPost
         formPost.value.imageBackground = postEdit[0].imageBackground
         formPost.value.titlePost = postEdit[0].titlePost
-
     }
 
     function update(){
-        posts.value.forEach(post=>{
-
-            if(post.idPost == idPostEditing){
-                
-            }
-        })
+        const currentPosts = posts.value.filter(item=>item.idPost != idPostEditing.value)
+        posts.value = [...currentPosts, formPost.value]
+        editing.value = false
     }
 
+    function useClearFormPost(){
+        formPost.value.descriptionPost = ''
+        formPost.value.idPost = null
+        formPost.value.imageBackground = ''
+        formPost.value.titlePost = ''
+    }
 
 </script>
 
@@ -136,7 +141,7 @@
                     </div>
                     <div class="col-md-12 mt-4">
                         <button v-if="editing === false" @click="addPost" class="btn btn-dark">Post</button>
-                        <button v-if="editing" @click="addPost" class="btn btn-dark">Update</button>
+                        <button v-if="editing" @click="update" class="btn btn-dark">Update</button>
                     </div>
                 </div>
             </div>
