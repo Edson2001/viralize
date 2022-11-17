@@ -10,11 +10,15 @@
 
     const {descriptionPost, idPost, titlePost, imageBackground} = toRefs(props)
     const emit = defineEmits([
-        "deletePost"
+        "deletePost",
+        "edit"
     ])
 
     function deletePost(){
         emit("deletePost", idPost.value)
+    }
+    function editPost(){
+        emit("edit", idPost.value)
     }
 
 </script>
@@ -26,7 +30,7 @@
             <p class="card-text">{{descriptionPost}}</p>
             <div class="d-flex">
                 <a href="#" class="btn btn-outline-secondary">view</a>
-                <a href="#" class="btn btn-outline-secondary">edit</a>
+                <a href="#" @click.prevent="editPost" class="btn btn-outline-secondary">edit</a>
                 <a href="#" @click.prevent="deletePost" class="btn btn-outline-secondary">delete</a>
             </div>
         </div>

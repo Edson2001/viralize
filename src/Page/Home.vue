@@ -6,8 +6,9 @@
     let posts = ref([])
     let filterPosts = ref([])
     let filterInput = ref('')
-
     let filtered = ref(false)
+    let editing = ref(false)
+    let idPostEditing = ref<number | null>(null)
     
     const formPost = ref<{
         descriptionPost: string,
@@ -47,13 +48,37 @@
     }
 
     function filter(){
+
         filterPosts.value = posts.value.filter(item=> item.titlePost === filterInput.value)
+
         if(filterPosts.value.length > 0){
             filtered.value = true
         }else{
             filtered.value = false
         }
     }
+
+    function getPostToEdit(postID: number){
+        
+        let postEdit = posts.value.filter(item=> item.idPost == postID)
+        
+        editing.value = true
+        idPostEditing.value = postID
+        formPost.value.descriptionPost = postEdit[0].descriptionPost
+        formPost.value.imageBackground = postEdit[0].imageBackground
+        formPost.value.titlePost = postEdit[0].titlePost
+
+    }
+
+    function update(){
+        posts.value.forEach(post=>{
+
+            if(post.idPost == idPostEditing){
+                
+            }
+        })
+    }
+
 
 </script>
 
@@ -75,6 +100,7 @@
                             :title-post="item.titlePost"
                             :idPost="item.idPost"
                             @delete-post="deletePost"
+                            @edit="getPostToEdit"
                         />
                     </div>
                     <div v-if="filtered"  v-for="item in filterPosts" :key="item.idPost" class="col-md-6">
@@ -84,6 +110,7 @@
                             :title-post="item.titlePost"
                             :idPost="item.idPost"
                             @delete-post="deletePost"
+                            @edit="getPostToEdit"
                         />
                     </div>
                 </div>
@@ -108,7 +135,8 @@
                         <textarea v-model="formPost.descriptionPost" class="form-control" id="" cols="30" rows="10"></textarea>
                     </div>
                     <div class="col-md-12 mt-4">
-                        <button @click="addPost" class="btn btn-dark">Post</button>
+                        <button v-if="editing === false" @click="addPost" class="btn btn-dark">Post</button>
+                        <button v-if="editing" @click="addPost" class="btn btn-dark">Update</button>
                     </div>
                 </div>
             </div>
