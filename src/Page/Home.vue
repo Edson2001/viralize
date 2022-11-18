@@ -3,21 +3,30 @@
     import {onMounted, ref, watch, toRefs} from "vue"
     import Card from "../components/Card.vue"
 
-    let posts = ref([])
-    let filterPosts = ref([])
+    type typePost = {
+        descriptionPost: string,
+        imageBackground: string,
+        titlePost: string, 
+        idPost: number  
+    }
+
+    type typeFormPost = {
+        descriptionPost: string,
+        imageBackground: string,
+        titlePost: string,   
+    }
+
+    let posts = ref<[typePost]>()
+
+    let filterPosts = ref<[typePost]>()
     let filterInput = ref('')
     let filtered = ref(false)
     let editing = ref(false)
 
     let idPostEditing = ref<number | null>(null)
     
-    const formPost = ref<{
-        descriptionPost: string,
-        imageBackground: string,
-        titlePost: string, 
-        idPost:number | null}>({
+    const formPost = ref<typeFormPost>({
         descriptionPost: '',
-        idPost: null,
         imageBackground: '',
         titlePost: ''
     })
@@ -32,17 +41,19 @@
 
         if(descriptionPost.value == '' || titlePost.value == '' || imageBackground.value == ''){
             alert("Preencha todos os campos")
-            return "Preecha todos os campos"
+            return 
         }
 
-        posts.value = [...posts.value, 
+        let newPost = [...posts.value || [], 
             {
                 descriptionPost: descriptionPost.value,
-                idPost: posts.value.length + 1,
+                idPost: posts.value ? posts.value.length + 1 : 0,
                 imageBackground: imageBackground.value,
                 titlePost: titlePost.value
             }
         ]
+
+        posts.value = newPost
 
         useClearFormPost()
     }
@@ -52,39 +63,52 @@
     })
 
     function deletePost(postID:number){
-        posts.value = posts.value.filter(item=>item.idPost != postID)
+        
+        if(posts.value){
+            posts.value =  posts.value.filter(item=>item.idPost != postID)
+        }
+        
     }
 
     function filter(){
-
-        filterPosts.value = posts.value.filter(item=> item.titlePost === filterInput.value)
-        if(filterPosts.value.length > 0){
-            filtered.value = true
-        }else{
-            filtered.value = false
-        }
+        
+        if(posts.value){
+            filterPosts.value = posts.value.filter(item=> item.titlePost === filterInput.value)
+        
+            if(filterPosts.value && filterPosts.value.length > 0){
+                filtered.value = true
+            }else{
+                filtered.value = false
+            }
+        }        
     }
 
     function getPostToEdit(postID: number){
-        let postEdit = posts.value.filter(item=> item.idPost == postID)
+       if(posts.value){
+        let postEdit: typePost = posts.value.filter(item=> item.idPost == postID)[0]
         
         editing.value = true
         idPostEditing.value = postID
 
-        formPost.value.descriptionPost = postEdit[0].descriptionPost
-        formPost.value.imageBackground = postEdit[0].imageBackground
-        formPost.value.titlePost = postEdit[0].titlePost
+        formPost.value.descriptionPost = postEdit.descriptionPost
+        formPost.value.imageBackground = postEdit.imageBackground
+        formPost.value.titlePost = postEdit.titlePost
+       }
     }
 
     function update(){
-        const currentPosts = posts.value.filter(item=>item.idPost != idPostEditing.value)
-        posts.value = [...currentPosts, formPost.value]
-        editing.value = false
+        if(posts.value){
+            const currentPosts = posts.value.filter(item=>item.idPost != idPostEditing.value)
+            console.log( posts.value, currentPosts,  idPostEditing.value)
+            
+            posts.value  = [...currentPosts, formPost.value]
+            editing.value = false 
+        }
+        
     }
 
     function useClearFormPost(){
         formPost.value.descriptionPost = ''
-        formPost.value.idPost = null
         formPost.value.imageBackground = ''
         formPost.value.titlePost = ''
     }
@@ -102,7 +126,7 @@
                             <button @click="filter" class="btn btn-dark">Filter</button>
                         </div>
                     </div>
-                    <div  v-if="filtered === false" v-for="item in posts" :key="item.idPost" class="col-md-6">
+                    <div  v-if="filtered == false" v-for="item in posts" :key="item.idPost" class="col-md-6">
                         <Card 
                             :descriptionPost="item.descriptionPost"
                             :imageBackground="item.imageBackground" 
