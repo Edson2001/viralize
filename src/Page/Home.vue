@@ -7,11 +7,12 @@
 
     let posts = ref<typePost[]>()
     let filterPosts = ref<typePost[]>()
+
     let filterInput = ref('')
-    let filtered = ref(false)
+    let isFilter = ref(false)
     let isEditing = ref(false)
     let idPostEditing = ref<number>(0)
-    
+   
     const formPost = ref<typeFormPost>({
         descriptionPost: '',
         imageBackground: '',
@@ -49,10 +50,13 @@
         localStorage.setItem("posts", JSON.stringify(posts.value))
     })
 
+
     function deletePost(postID:number){
-        
         if(posts.value){
             posts.value =  posts.value.filter(item=>item.idPost != postID)
+            if(isFilter){
+                filterPosts.value = []
+            }
         }        
     }
 
@@ -60,9 +64,9 @@
         if(posts.value){
             filterPosts.value = posts.value.filter(item=> item.titlePost === filterInput.value)
             if(filterPosts.value && filterPosts.value.length > 0){
-                filtered.value = true
+                isFilter.value = true
             }else{
-                filtered.value = false
+                isFilter.value = false
             }
         }        
     }
@@ -98,6 +102,7 @@
 
             posts.value  = [...currentPosts, newFormPost] 
             isEditing.value = false 
+            useClearFormPost()
         }
         
     }
@@ -121,7 +126,7 @@
                             <button @click="filterPost" class="btn btn-dark">Filter</button>
                         </div>
                     </div>
-                    <div  v-if="filtered == false" v-for="item in posts" :key="item.idPost" class="col-md-6">
+                    <div  v-if="isFilter == false" v-for="item in posts" :key="item.idPost" class="col-md-6">
                         <Card 
                             :descriptionPost="item.descriptionPost"
                             :imageBackground="item.imageBackground" 
@@ -131,7 +136,7 @@
                             @edit="getPostToEdit"
                         />
                     </div>
-                    <div v-if="filtered"  v-for="item in filterPosts" :key="item.idPost" class="col-md-6">
+                    <div v-if="isFilter"  v-for="item in filterPosts" :key="item.idPost" class="col-md-6">
                         <Card 
                             :descriptionPost="item.descriptionPost"
                             :imageBackground="item.imageBackground" 

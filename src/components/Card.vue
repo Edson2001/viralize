@@ -13,14 +13,10 @@
     ])
 
     function deletePost(){
-
         emit("deletePost", props.idPost)
-
     }
     function editPost(){
-
         emit("edit", props.idPost)
-
     }
 
 </script>
