@@ -4,7 +4,7 @@
         imageBackground: String,
         titlePost: String,
         descriptionPost: String,
-        idPost: Number || null 
+        idPost: Number 
     })
     
     const emit = defineEmits([
@@ -27,8 +27,8 @@
             <h5 class="card-title">{{props.titlePost}}</h5>
             <p class="card-text">{{props.descriptionPost}}</p>
             <div class="d-flex">
-                <a href="#" @click.prevent="editPost" class="btn btn-outline-secondary">edit</a>
-                <a href="#" @click.prevent="deletePost" class="btn btn-outline-secondary">delete</a>
+                <a href="#" @click.prevent="editPost" id="edit" class="btn btn-outline-secondary">edit</a>
+                <a href="#" @click.prevent="deletePost" id="delete" class="btn btn-outline-secondary">delete</a>
             </div>
         </div>
     </div>

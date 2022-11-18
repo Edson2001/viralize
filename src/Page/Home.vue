@@ -4,7 +4,9 @@
     import Card from "../components/Card.vue"
     import {typePost} from "../types/Post"
     import {typeFormPost} from "../types/FormPost"
+    import checkImage from "../helper/checkImage"
 
+    let messageReturn = ref('')
     let posts = ref<typePost[]>()
     let filterPosts = ref<typePost[]>()
 
@@ -28,8 +30,13 @@
         const {descriptionPost, titlePost, imageBackground} = toRefs(formPost.value)
 
         if(descriptionPost.value == '' || titlePost.value == '' || imageBackground.value == ''){
-            alert("Preencha todos os campos")
+            messageReturn.value = 'Preencha todos os campos'
             return 
+        }
+
+        if(!checkImage(imageBackground.value)){
+            messageReturn.value = 'Adicione uma imagem válida Ex: .png, .svg, .webep, .jpg ou .jpeg'
+            return
         }
 
         let newPost = [...posts.value || [], 
@@ -42,7 +49,7 @@
         ]
 
         posts.value = newPost
-
+        messageReturn.value = 'Postagem cadastrada com sucesso!'
         useClearFormPost()
     }
 
@@ -50,12 +57,12 @@
         localStorage.setItem("posts", JSON.stringify(posts.value))
     })
 
-
     function deletePost(postID:number){
         if(posts.value){
             posts.value =  posts.value.filter(item=>item.idPost != postID)
             if(isFilter){
                 filterPosts.value = []
+                messageReturn.value = 'Postagem deletada com sucesso!'
             }
         }        
     }
@@ -152,24 +159,25 @@
             <div class="col-md-4 content">
                 <div class="row">
                     <div class="col-md-12 mb-2">
-                        <div class="input-group">
+                        <span v-if="messageReturn" class="alert alert-info" id="message" >{{messageReturn}}</span>
+                        <div class="input-group mt-4">
                             <label class="input-group-text" for="">Title</label>
-                            <input v-model="formPost.titlePost" type="text" class="form-control" />
+                            <input v-model="formPost.titlePost" type="text" id="titleInput" class="form-control" />
                         </div>
                     </div>
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="input-group-text" for="">Image URL</label>
-                            <input type="text" v-model="formPost.imageBackground"  class="form-control" />
+                            <input type="text" v-model="formPost.imageBackground" id="ImageInput"  class="form-control" />
                         </div>
                     </div>
                     <div class="col-md-12 mt-4">
                         <label for="">Description</label>
-                        <textarea v-model="formPost.descriptionPost" class="form-control" id="" cols="30" rows="10"></textarea>
+                        <textarea v-model="formPost.descriptionPost" class="form-control" id="descriptionInput" cols="30" rows="10"></textarea>
                     </div>
                     <div class="col-md-12 mt-4">
-                        <button v-if="isEditing === false" @click="newPost" class="btn btn-dark">Post</button>
-                        <button v-if="isEditing" @click="update" class="btn btn-dark">Update</button>
+                        <button v-if="isEditing === false" @click="newPost" id="post" class="btn btn-dark">Post</button>
+                        <button v-if="isEditing" @click="update" id="update" class="btn btn-dark">Update</button>
                     </div>
                 </div>
             </div>
